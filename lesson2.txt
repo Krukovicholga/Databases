@@ -1,0 +1,121 @@
+olga@olga-VirtualBox:/var/lib/mysql$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+
+mysql> CREATE DATABASE example;
+Query OK, 1 row affected (0,03 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| example            |
+| information_schema |
+| mysql              |
+| performance_schema |
+| shop               |
+| sys                |
++--------------------+
+6 rows in set (0,00 sec)
+
+mysql> use example
+Database changed
+
+
+mysql> CREATE TABLE users (id INT, name VARCHAR(255));
+Query OK, 0 rows affected (0,06 sec)
+
+mysql> show tables
+    -> ;
++-------------------+
+| Tables_in_example |
++-------------------+
+| users             |
++-------------------+
+1 row in set (0,00 sec)
+
+mysql> describe users;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| id    | int          | YES  |     | NULL    |       |
+| name  | varchar(255) | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+2 rows in set (0,00 sec)
+
+mysql> \q
+Bye
+olga@olga-VirtualBox:/var/lib/mysql$ mysqldump example > example.sql
+
+olga@olga-VirtualBox:/var/lib/mysql$ cat example.sql
+-- MySQL dump 10.13  Distrib 8.0.20, for Linux (x86_64)
+--
+-- Host: localhost    Database: example
+-- ------------------------------------------------------
+-- Server version	8.0.20
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `users`
+--
+
+olga@olga-VirtualBox:/var/lib/mysql$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+
+mysql> create database sample;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> \q
+Bye
+olga@olga-VirtualBox:/var/lib/mysql$ mysql sample < example.sql
+olga@olga-VirtualBox:/var/lib/mysql$ mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| example            |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sample             |
+| shop               |
+| sys                |
++--------------------+
+7 rows in set (0,01 sec)
+
+mysql> use sample
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+mysql> show tables;
++------------------+
+| Tables_in_sample |
++------------------+
+| users            |
++------------------+
+1 row in set (0,00 sec)
+
+mysql> DESCRIBE users;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| id    | int          | YES  |     | NULL    |       |
+| name  | varchar(255) | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+2 rows in set (0,00 sec)
+
+mysql> 
