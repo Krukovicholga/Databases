@@ -1,0 +1,31 @@
+mysql> show tables;
++---------------------+
+| Tables_in_vk        |
++---------------------+
+| communities         |
+| communities_users   |
+| friendship          |
+| friendship_statuses |
+| media               |
+| media_types         |
+| messages            |
+| profiles            |
+| users               |
++---------------------+
+9 rows in set (0,00 sec)
+
+mysql> describe users;
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| Field      | Type         | Null | Key | Default           | Extra                                         |
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| id         | int unsigned | NO   | PRI | NULL              | auto_increment                                |
+| first_name | varchar(100) | NO   |     | NULL              |                                               |
+| last_name  | varchar(100) | NO   |     | NULL              |                                               |
+| email      | varchar(100) | NO   | UNI | NULL              |                                               |
+| phone      | varchar(100) | NO   | UNI | NULL              |                                               |
+| created_at | datetime     | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
+| updated_at | datetime     | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+7 rows in set (0,03 sec)
+
+mysql> 
