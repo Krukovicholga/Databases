@@ -1,0 +1,192 @@
+
+--Задание 1
+
+mysql> SELECT * FROM users;
++----+------------+-----------+------------+------------+
+| id | first_name | last_name | created_at | updated_at |
++----+------------+-----------+------------+------------+
+|  1 | Krukovich  | Olga      | NULL       | NULL       |
+|  2 | Ivanov     | Igor      | NULL       | NULL       |
++----+------------+-----------+------------+------------+
+2 rows in set (0,00 sec)
+
+
+mysql> UPDATE users SET created_at=NOW();
+Query OK, 2 rows affected (0,01 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> SELECT * FROM users;
++----+------------+-----------+---------------------+------------+
+| id | first_name | last_name | created_at          | updated_at |
++----+------------+-----------+---------------------+------------+
+|  1 | Krukovich  | Olga      | 2020-05-16 13:36:57 | NULL       |
+|  2 | Ivanov     | Igor      | 2020-05-16 13:36:57 | NULL       |
++----+------------+-----------+---------------------+------------+
+2 rows in set (0,00 sec)
+
+mysql> UPDATE users SET updated_at=NOW();
+Query OK, 2 rows affected (0,02 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+
+mysql> SELECT * FROM users;
++----+------------+-----------+---------------------+---------------------+
+| id | first_name | last_name | created_at          | updated_at          |
++----+------------+-----------+---------------------+---------------------+
+|  1 | Krukovich  | Olga      | 2020-05-16 13:36:57 | 2020-05-16 13:37:18 |
+|  2 | Ivanov     | Igor      | 2020-05-16 13:36:57 | 2020-05-16 13:37:18 |
++----+------------+-----------+---------------------+---------------------+
+2 rows in set (0,00 sec)
+
+
+
+
+
+Задание 2
+
+mysql> describe users;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int unsigned | NO   | PRI | NULL    | auto_increment |
+| first_name | varchar(100) | NO   |     | NULL    |                |
+| last_name  | varchar(100) | NO   |     | NULL    |                |
+| created_at | varchar(120) | YES  |     | NULL    |                |
+| updated_at | varchar(120) | YES  |     | NULL    |                |
+| birthday   | datetime     | YES  |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+6 rows in set (0,00 sec)
+
+mysql> UPDATE
+    -> users
+    -> SET
+    -> created_at = STR_TO_DATE(created_at, '%d.%m.%Y %k:%i'),
+    -> updated_at = STR_TO_DATE(updated_at, '%d.%m.%Y %k:%i');
+Query OK, 2 rows affected (0,02 sec)
+Rows matched: 7  Changed: 2  Warnings: 0
+
+mysql> ALTER TABLE
+    -> users
+    -> CHANGE
+    -> created_at created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+Query OK, 7 rows affected (0,38 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE
+    ->   users
+    -> CHANGE
+    ->   updated_at updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+Query OK, 7 rows affected (2,32 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> DESCRIBE users;
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| Field      | Type         | Null | Key | Default           | Extra                                         |
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+| id         | int unsigned | NO   | PRI | NULL              | auto_increment                                |
+| first_name | varchar(100) | NO   |     | NULL              |                                               |
+| last_name  | varchar(100) | NO   |     | NULL              |                                               |
+| created_at | datetime     | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED                             |
+| updated_at | datetime     | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED on update CURRENT_TIMESTAMP |
+| birthday   | datetime     | YES  |     | NULL              |                                               |
++------------+--------------+------+-----+-------------------+-----------------------------------------------+
+6 rows in set (0,00 sec)
+
+
+
+
+ЗАДАНИЕ 3
+
+mysql> SELECT * FROM storehouses_products;
++----+---------------+------------+-------+---------------------+---------------------+
+| id | storehouse_id | product_id | value | created_at          | updated_at          |
++----+---------------+------------+-------+---------------------+---------------------+
+|  1 |             1 |        543 |     0 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  2 |             1 |        789 |  2500 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  3 |             1 |       3432 |     0 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  4 |             1 |        826 |    30 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  5 |             1 |        719 |   500 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  6 |             1 |        638 |     1 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
++----+---------------+------------+-------+---------------------+---------------------+
+6 rows in set (0,00 sec)
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   storehouses_products
+    -> ORDER BY
+    ->   value = 0, value;
++----+---------------+------------+-------+---------------------+---------------------+
+| id | storehouse_id | product_id | value | created_at          | updated_at          |
++----+---------------+------------+-------+---------------------+---------------------+
+|  6 |             1 |        638 |     1 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  4 |             1 |        826 |    30 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  5 |             1 |        719 |   500 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  2 |             1 |        789 |  2500 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  1 |             1 |        543 |     0 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
+|  3 |             1 |       3432 |     0 | 2020-05-17 18:13:25 | 2020-05-17 18:13:25 |
++----+---------------+------------+-------+---------------------+---------------------+
+6 rows in set (0,00 sec)
+
+
+
+ЗАДАНИЕ 4
+
+mysql> SELECT * FROM users;
++----+--------------------+------------------+---------------------+---------------------+---------------------+
+| id | first_name         | last_name        | created_at          | updated_at          | birthday            |
++----+--------------------+------------------+---------------------+---------------------+---------------------+
+|  1 | Krukovich          | Olga             | 2017-10-20 08:10:00 | 2017-10-20 08:10:00 | NULL                |
+|  2 | Ivanov             | Igor             | 2017-10-20 08:10:00 | 2017-10-20 08:10:00 | NULL                |
+|  3 | Наталья            | Морозова         | NULL                | NULL                | 1984-11-12 00:00:00 |
+|  4 | Александр          | Жуков            | NULL                | NULL                | 1985-05-20 00:00:00 |
+|  5 | Сергей             | Есенин           | NULL                | NULL                | 1988-02-14 00:00:00 |
+|  6 | Иван               | Петров           | NULL                | NULL                | 1998-01-12 00:00:00 |
+|  7 | Мария              | Белова           | NULL                | NULL                | 1992-08-29 00:00:00 |
++----+--------------------+------------------+---------------------+---------------------+---------------------+
+7 rows in set (0,00 sec)
+
+
+mysql> SELECT first_name  
+    ->   FROM users
+    ->   WHERE DATE_FORMAT(birthday, '%M') IN ('may', 'august');
++--------------------+
+| first_name         |
++--------------------+
+| Александр          |
+| Мария              |
++--------------------+
+2 rows in set (0,00 sec)
+
+
+
+ЗАДАНИЕ 5
+
+mysql> select * from catalogs;
++----+-------------------------------------+
+| id | name                                |
++----+-------------------------------------+
+|  1 | Процессоры                          |
+|  2 | Материнские платы                   |
+|  3 | Видеокарты                          |
+|  4 | Жесткие диски                       |
+|  5 | Оперативная память                  |
++----+-------------------------------------+
+5 rows in set (0,00 sec)
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   catalogs
+    -> WHERE
+    ->   id IN (5, 1, 2)
+    -> ORDER BY
+    ->   FIELD(id, 5, 1, 2);
++----+-------------------------------------+
+| id | name                                |
++----+-------------------------------------+
+|  5 | Оперативная память                  |
+|  1 | Процессоры                          |
+|  2 | Материнские платы                   |
++----+-------------------------------------+
+3 rows in set (0,00 sec)
+
