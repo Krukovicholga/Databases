@@ -1,0 +1,175 @@
+ЗАДАНИЕ 1
+use vk;
+show tables;
+
+ALTER TABLE media 
+ADD CONSTRAINT nedia_media_type_id_fk
+FOREIGN KEY (media_type_id) REFERENCES media_types(id)
+ON DELETE SET NULL;
+
+DESC media; 
+
+ALTER TABLE media MODIFY COLUMN media_type_id INT UNSIGNED;
+
+ALTER TABLE media DROP FOREIGN nedia_media_type_id_fk;
+
+ALTER TABLE media 
+ADD CONSTRAINT media_media_type_id_fk
+FOREIGN KEY (media_type_id) REFERENCES media_types(id)
+ON DELETE SET NULL;
+
+desc friendship;
+ALTER TABLE friendship MODIFY COLUMN status_id INT UNSIGNED;
+
+
+ALTER TABLE friendship 
+ADD CONSTRAINT friendship_status_id_fk
+FOREIGN KEY (status_id) REFERENCES friendship_statuses(id)
+ON DELETE SET NULL;
+
+desc friendship;
+
+ALTER TABLE friendship 
+ADD CONSTRAINT friendship_user_id_fk
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE,
+ADD CONSTRAINT friendship_friend_id_fk
+FOREIGN KEY (friend_id) REFERENCES profiles(user_id)
+ON DELETE CASCADE;
+
+desc communities_users;
+
+
+ALTER TABLE communities_users
+ADD CONSTRAINT communities_users_communities_id_fk
+FOREIGN KEY (community_id) REFERENCES communities(id)
+ON DELETE CASCADE,
+ADD CONSTRAINT communities_users_users_id_fk
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE;
+
+
+desc posts;
+
+ALTER TABLE posts
+ADD CONSTRAINT posts_users_id_fk
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE,
+ADD CONSTRAINT posts_community_id_fk
+FOREIGN KEY (community_id) REFERENCES communities(id)
+ON DELETE SET NULL;
+
+ALTER TABLE posts
+ADD CONSTRAINT posts_media_id_fk
+FOREIGN KEY (media_id) REFERENCES media(id)
+ON DELETE SET NULL;
+
+ALTER TABLE likes
+ADD CONSTRAINT likes_user_id_fk
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE,
+ADD CONSTRAINT likes_target_type_id_fk
+FOREIGN KEY (target_type_id) REFERENCES target_types(id)
+ON DELETE CASCADE;
+
+ALTER TABLE messages 
+ADD CONSTRAINT messages_from_user_id_fk
+FOREIGN KEY (from_user_id) REFERENCES users(id),
+ADD CONSTRAINT messages_to_user_id_fk
+FOREIGN KEY (to_user_id) REFERENCES users(id);
+
+ALTER TABLE friendship DROP FOREIGN KEY friendship_friend_id_fk;
+
+ALTER TABLE friendship
+ADD CONSTRAINT friendship_friend_id_fk
+FOREIGN KEY (friend_id) REFERENCES users(id);
+
+
+
+ЗАДАНИЕ 2
+
+DROP TABLE IF EXISTS likes;
+CREATE TABLE likes (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  target_id INT UNSIGNED NOT NULL,
+  target_type_id INT UNSIGNED NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+DROP TABLE IF EXISTS target_types;
+CREATE TABLE target_types (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO target_types (name) VALUES 
+  ('messages'),
+  ('users'),
+  ('media'),
+  ('posts');
+
+
+INSERT INTO likes 
+  SELECT 
+    id, 
+    FLOOR(1 + (RAND() * 100)), 
+    FLOOR(1 + (RAND() * 100)),
+    FLOOR(1 + (RAND() * 4)),
+    CURRENT_TIMESTAMP 
+  FROM messages;
+
+
+-- Создадим таблицу постов
+CREATE TABLE posts (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  community_id INT UNSIGNED,
+  head VARCHAR(255),
+  body TEXT NOT NULL,
+  media_id INT UNSIGNED,
+  is_public BOOLEAN DEFAULT TRUE,
+  is_archived BOOLEAN DEFAULT FALSE,
+  views_counter INT UNSIGNED DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+mysql> SELECT * FROM likes LIMIT 10;
++----+---------+-----------+----------------+---------------------+
+| id | user_id | target_id | target_type_id | created_at          |
++----+---------+-----------+----------------+---------------------+
+|  1 |      84 |        71 |              1 | 2020-05-18 13:25:25 |
+|  2 |       2 |         1 |              4 | 2020-05-18 13:25:25 |
+|  3 |      81 |        15 |              2 | 2020-05-18 13:25:25 |
+|  4 |      15 |        79 |              2 | 2020-05-18 13:25:25 |
+|  5 |      13 |        15 |              2 | 2020-05-18 13:25:25 |
+|  6 |      36 |        68 |              2 | 2020-05-18 13:25:25 |
+|  7 |      67 |        31 |              3 | 2020-05-18 13:25:25 |
+|  8 |      77 |        23 |              4 | 2020-05-18 13:25:25 |
+|  9 |      48 |        88 |              4 | 2020-05-18 13:25:25 |
+| 10 |      23 |        19 |              2 | 2020-05-18 13:25:25 |
++----+---------+-----------+----------------+---------------------+
+10 rows in set (0,00 sec)
+
+
+
+ЗАДАНИЕ 3
+
+SELECT COUNT(target_id IN
+ (SELECT * FROM (SELECT user_id
+FROM profiles
+ORDER BY birthday DESC
+LIMIT 10) AS young_user))
+FROM likes
+WHERE target_type_id IN
+(SELECT id FROM target_types WHERE name LIKE 'users');
+
+
+
+ЗАДАНИЕ 4
+
+SELECT SUM(user_id IN(SELECT user_id from profiles where gender='m')) AS men,
+SUM(user_id IN(SELECT user_id from profiles where gender='w')) AS women FROM likes;
