@@ -1,0 +1,70 @@
+ЗАДАНИЕ 1
+
+SELECT
+ name
+FROM
+ users
+WHERE
+ id IN(SELECT user_id FROM orders)
+ORDER by name;
+
++-----------+
+| name      |
++-----------+
+| Ivanov    |
+| Krukovich |
+| Vasilyeva |
++-----------+
+3 rows in set (0,00 sec)
+
+___________________________________________________________________________________________
+
+ЗАДАНИЕ 2
+
+SELECT
+  name,
+  (SELECT name FROM catalogs WHERE id = catalog_id) AS 'catalog'
+FROM
+  products;
+  
+  +-------------------------+-----------------------------------+
+| name                    | catalog                           |
++-------------------------+-----------------------------------+
+| Intel Core i3-8100      | Процессоры                        |
+| Intel Core i5-7400      | Процессоры                        |
+| AMD FX-8320E            | Процессоры                        |
+| AMD FX-8320             | Процессоры                        |
+| ASUS ROG MAXIMUS X HERO | Материнские платы                 |
+| Gigabyte H310M S2H      | Материнские платы                 |
+| MSI B250M GAMING PRO    | Материнские платы                 |
+| Intel Core i3-8100      | Процессоры                        |
+| Intel Core i5-7400      | Процессоры                        |
+| AMD FX-8320E            | Процессоры                        |
+| AMD FX-8320             | Процессоры                        |
+| ASUS ROG MAXIMUS X HERO | Материнские платы                 |
+| Gigabyte H310M S2H      | Материнские платы                 |
+| MSI B250M GAMING PRO    | Материнские платы                 |
++-------------------------+-----------------------------------+
+14 rows in set (0,00 sec)
+
+
+____________________________________________________________________________________________
+
+ЗАДАНИЕ 3
+
+
+mysql> SELECT
+    -> (SELECT name FROM cities WHERE `from` = label) AS `from`,
+    -> (SELECT name FROM cities WHERE `to` = label) AS `to`
+    -> FROM 
+    -> flights;
++------------------+----------------+
+| from             | to             |
++------------------+----------------+
+| Москва           | Омск           |
+| Новгород         | Казань         |
+| Иркутск          | Москва         |
+| Омск             | Иркутск        |
+| Москва           | Казань         |
++------------------+----------------+
+5 rows in set (0,00 sec)
