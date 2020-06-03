@@ -1,0 +1,66 @@
+
+ЗАДАНИЕ № 1
+
+-- Создание индекса для постов по дате создания
+CREATE INDEX posts_createdat_idx ON posts(created_at);
+
+
+____________________________________________________________
+
+ЗАДАНИЕ № 2
+
+Возникшие проблемы:
+1. Для рассчета срденего количества юзеров в группах хотела применить AVG,
+ но не разобраась, как взять в рассчет цифры, которые получились в столбце 
+ users_in_community (COUNT(communities_users.user_id) OVER w AS users_in_community).
+2. Попыталось среднее количество рассчитать через деление количества всех юзеров на количество групп, но
+после долгих исканий так и не удалось получить реальное количество групп в столбце total_communities.
+3. Не поняла, как записать запросы, что бы выводилось имя самого молодого и взрослого участника группы, 
+у меня выводится только их дата рождения.
+
+
+
+SELECT DISTINCT communities.name,
+  COUNT(communities_users.user_id) OVER w AS users_in_community,
+  COUNT(users.id) OVER() AS total_users_vk,
+  COUNT(communities_users.user_id) OVER w / COUNT(communities_users.user_id) OVER() * 100 AS "%%",
+  MIN(profiles.birthday) OVER w AS oldest,
+  MAX(profiles.birthday) OVER w AS youngest,
+  COUNT(communities.id) OVER() as total_communities,
+  COUNT(users.id) OVER() / COUNT(communities.id) OVER() AS average_users_in_group
+    FROM (communities_users
+      LEFT JOIN communities
+     ON communities_users.community_id = communities.id
+      LEFT JOIN users 
+     ON communities_users.user_id = users.id
+      LEFT JOIN profiles
+     ON communities_users.user_id = profiles.user_id)
+        WINDOW w AS (PARTITION BY communities_users.community_id);
+		
+name        |users_in_community|total_users_vk|%%     |oldest    |youngest  |COUNT(communities.id) OVER()|average_users_in_group
+------------|------------------|--------------|-------|----------|----------|----------------------------|----------------------
+dolore      |                 2|           100| 2.0000|1981-05-05|2001-02-11|                         100|                1.0000
+aspernatur  |                 5|           100| 5.0000|1974-09-30|2012-10-13|                         100|                1.0000
+eos         |                 6|           100| 6.0000|1972-10-10|2010-01-29|                         100|                1.0000
+consequatur |                 3|           100| 3.0000|1979-07-12|1984-05-01|                         100|                1.0000
+aut         |                 6|           100| 6.0000|1975-11-06|2014-11-08|                         100|                1.0000
+laborum     |                 1|           100| 1.0000|1972-07-07|1972-07-07|                         100|                1.0000
+voluptates  |                 5|           100| 5.0000|1977-03-22|2020-01-24|                         100|                1.0000
+commodi     |                 2|           100| 2.0000|1999-03-17|2013-02-14|                         100|                1.0000
+ut          |                 4|           100| 4.0000|1999-03-17|2019-09-12|                         100|                1.0000
+laudantium  |                 1|           100| 1.0000|1990-06-11|1990-06-11|                         100|                1.0000
+velit       |                 4|           100| 4.0000|1979-08-17|2001-01-16|                         100|                1.0000
+minima      |                 3|           100| 3.0000|1988-04-01|2018-10-02|                         100|                1.0000
+tenetur     |                 4|           100| 4.0000|1976-08-25|2013-10-17|                         100|                1.0000
+dolorem     |                 1|           100| 1.0000|1982-10-05|1982-10-05|                         100|                1.0000
+voluptas    |                 5|           100| 5.0000|1982-03-26|2016-12-02|                         100|                1.0000
+vel         |                 5|           100| 5.0000|1971-07-21|2008-08-06|                         100|                1.0000
+totam       |                 6|           100| 6.0000|1983-12-29|2016-06-08|                         100|                1.0000
+at          |                10|           100|10.0000|1970-05-24|2019-08-21|                         100|                1.0000
+cum         |                 4|           100| 4.0000|1973-03-04|2007-11-10|                         100|                1.0000
+voluptatibus|                 2|           100| 2.0000|1971-09-19|2018-07-26|                         100|                1.0000
+dignissimos |                 5|           100| 5.0000|1971-10-11|2018-11-13|                         100|                1.0000
+nulla       |                 1|           100| 1.0000|1972-06-10|1972-06-10|                         100|                1.0000
+sint        |                 5|           100| 5.0000|1988-02-27|2015-12-10|                         100|                1.0000
+in          |                 3|           100| 3.0000|1972-08-22|2012-01-09|                         100|                1.0000
+et          |                 7|           100| 7.0000|1984-07-02|2016-08-10|                         100|                1.0000
