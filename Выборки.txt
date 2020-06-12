@@ -1,0 +1,171 @@
+
+Индексы:
+
+CREATE index sellers_city_id_idx on sellers(city_id);
+
+CREATE index products_category_id_idx on products(category_id);
+
+CREATE index products_category_id_idx on products(category_id);
+
+CREATE index products_city_id_idx on products(city_id);
+
+CREATE index pictures_stock_product_id_buyer_id_idx on pictures_stock(product_id, buyer_id);
+
+CREATE index review_order_id_idx on review(order_id);
+
+CREATE index buyers_city_id_idx on buyers(city_id);
+
+
+Представления:
+
+1. Выборка товаров по категории.
+
+CREATE OR REPLACE VIEW category_1 AS
+SELECT id, name, price, category_id
+FROM products
+WHERE category_id = 1;
+
+2. Товары по низкой цене в городе City_3 с возможностью обновления.
+
+CREATE VIEW products_low_price_in_city_3 as
+SELECT * FROM products
+WHERE price < 1000.00 and city_id = 3
+WITH CHECK OPTION;
+
+3. Выборка товаров и средней оценки.
+
+create view rating_products as
+select distinct  products.id, products.name as product, avg(review.rating) 'AVG_rating'
+from review
+join orders
+on review.order_id = orders.id
+join products
+on products.id = orders.product_id
+group by products.id;
+
+4. Выборка отзывов по рейтингу c фото :
+
+select review.id, cities.name, review.rating, orders.product_id, pictures_stock.id, review.txt_review 
+from review
+join orders
+on review.order_id = orders.id
+join cities
+on orders.city_id = cities.id
+join pictures_stock
+on review.order_id = pictures_stock.order_id 
+order by rating desc ;
+
+
+
+5. Выборка количества товаров у продавцов по цене меньше 1000 руб в городе City_6.
+
+SELECT seller_id, COUNT(*) AS Products_count
+FROM Products
+WHERE Price < 1000 and city_id = 6
+GROUP BY seller_id
+ORDER BY Products_count desc;
+
+6. Количество покупок по покупателям.
+
+SELECT buyer_id, COUNT(*) AS purchases
+FROM orders
+GROUP BY buyer_id
+ORDER BY purchases desc;
+
+7. Вложенные запросы. Покупатель, совершивший заказ с самой большой суммой.
+
+SELECT id, name
+FROM buyers
+WHERE id IN (SELECT buyer_id 
+FROM orders
+WHERE total_price = (SELECT MAX(total_price)
+FROM orders));    
+
+8. Продавцы, совершившие сделку в 2016 году
+
+SELECT sellers.id, sellers.name
+FROM sellers
+where sellers.id IN (SELECT seller_id
+FROM products where products.id in (select product_id from orders
+WHERE YEAR(created_at) = 2016));
+
+9. Пары продавцы и покупатели, совершившие сделку в 2020 г.
+
+ select sellers.id as seller, sellers.name, orders.buyer_id as buyer, buyers.name
+ from orders
+ join buyers
+ on orders.buyer_id = buyers.id
+ join products
+ on orders.product_id = products.id
+ join sellers
+ on products.seller_id = sellers.id
+ where YEAR(orders.created_at) = 2020;
+ 
+10. Комиссия (10%), которую получил сайт flowwow с продаж в 2020 г.
+ 
+select sum(orders.total_price) * 10/100  as flowwow_comission
+from orders
+where year(orders.created_at) = 2020;
+
+11. Хранимые процедуры.
+
+Продавец продавший на большую сумму в заданном интервале времени.
+
+DELIMITER //
+CREATE PROCEDURE best_sellers (d1 DATE, d2 DATE)
+BEGIN
+SELECT sellers.id, sellers.name, SUM(total_price) AS "Суммарные продажи"
+from orders
+ join buyers
+ on orders.buyer_id = buyers.id
+ join products
+ on orders.product_id = products.id
+ join sellers
+ on products.seller_id = sellers.id
+    and orders.created_at BETWEEN d1 and d2
+    GROUP BY sellers.id
+    ORDER BY SUM(total_price) DESC
+    LIMIT 1;
+END // 
+
+DELIMITER ; 
+
+CALL best_sellers ('2020-01-01', '2020-06-12');
+
+
+12. Хранимые процедуры.
+
+Продавцы в заданном городе.
+
+DELIMITER //
+CREATE PROCEDURE get_sellers (city_arg VARCHAR(45))
+BEGIN
+SELECT sellers.id, sellers.name, sellers.city_id, cities.name
+FROM sellers
+JOIN cities
+ON cities.id = sellers.city_id
+WHERE city_id = city_arg;
+END //
+DELIMITER ;
+
+CALL get_sellers ("5");
+
+
+13. Триггер AFTER INSERT.
+
+ После добавления новой строки в таблицу orders, в таблицу log записывается информация об этом.
+
+CREATE TABLE log (
+id INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+msg VARCHAR( 255 ) NOT NULL,
+time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+row_id INT( 11 ) NOT NULL
+);
+
+DELIMITER |
+CREATE TRIGGER 'update_orders' AFTER INSERT ON orders
+FOR EACH ROW BEGIN
+   INSERT INTO log Set msg = 'insert', row_id = NEW.id;
+END;
+
+
